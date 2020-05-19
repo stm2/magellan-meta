@@ -1,0 +1,55 @@
+name: React to release
+
+on:
+  repository_dispatch:
+    types: [actions-release-trigger]
+jobs:
+  myEvent:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.client_payload.ref }}
+      - run: |
+          REPOSITORY=${{ github.event.client_payload.repository }}
+          SHA=${{ github.event.client_payload.sha }}
+          TAG=${{ github.event.client_payload.tag }}
+          VERSION=${{ github.event.client_payload.version }}
+          FILENAME=${{ github.event.client_payload.filename }}
+          TYPE=${{ github.event.client_payload.type }}
+
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+          mkdir $TYPE || echo "$TYPE exists"
+          cd $TYPE
+          wget -N https://github.com/$REPOSITORY/releases/download/${TAG}/VERSION -O VERSION.new
+          ALT_VERSION=$(grep "^SEMANTIC_VERSION=" VERSION.new | sed -e "s/^[[:space:]]*//;s/[[:space:]]*$//" | cut -f2- -d= )
+          if [[ "$ALT_VERSION" != "$VERSION" ]]; then
+            echo "versions $ALT_VERSION and $VERSION do not match, aborting."
+            exit 1;
+          fi
+          mv -f VERSION.new VERSION
+          git add VERSION
+          cd ..
+          
+          DATE=$(date | sed -e "s/ /_/g")
+          mkdir -p archive/$DATE
+          cd archive/$DATE
+          JAR=${FILENAME}.jar
+          ZIP=${FILENAME}.zip
+          MAC=${FILENAME}_macos.tgz
+          wget -N https://github.com/${REPOSITORY}/releases/download/${TAG}/${JAR}
+          wget -N https://github.com/${REPOSITORY}/releases/download/${TAG}/${ZIP}
+          wget -N https://github.com/${REPOSITORY}/releases/download/${TAG}/${MAC} || echo "$MACH not found"
+          git add ${JAR} || echo ${JAR} does not exist
+          git add ${ZIP} || echo ${ZIP} does not exist
+          git add ${MAC} || echo ${MAC} does not exist
+          cd ../..
+
+          echo "($DATE) added new $TYPE release $VERSION." >> log.txt
+          git add log.txt
+          
+          git commit -m "triggered new version ${VERSION}"
+          REMOTE="https://$GITHUB_ACTOR:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY.git"
+          git push 
