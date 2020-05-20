@@ -1,1 +1,1 @@
-(Wed_May_20_07:49:02_UTC_2020) added new stable release 2.0.6.
+(Wed_May_20_20:01:18_UTC_2020) added new stable release 2.1.0-708.latest.

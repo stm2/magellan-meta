@@ -1,5 +1,5 @@
 #
 # This is a generated file. Edit VERSION.template instead
 #
-VERSION=2.0.6 (build 685)
-SEMANTIC_VERSION=2.0.6
+VERSION=2.1.0 (build 708)
+SEMANTIC_VERSION=2.1.0-708.latest
