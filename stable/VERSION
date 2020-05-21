@@ -1,5 +1,6 @@
 #
 # This is a generated file. Edit VERSION.template instead
 #
-VERSION=2.1.0 (build 708)
-SEMANTIC_VERSION=2.1.0-708.latest
+VERSION=2.1.0 (build 709)
+SEMANTIC_VERSION=2.1.0-709.beta7
+BUILD_TIMESTAMP=1590058848886
